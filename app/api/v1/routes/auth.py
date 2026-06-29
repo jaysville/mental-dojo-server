@@ -43,7 +43,7 @@ def signup(data: SignupRequest, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
     initialize_faculties_for_user(db, new_user.id)
-    token = create_access_token({"sub": new_user.email})
+    token = create_access_token(new_user)
 
     return success({
     "access_token": token,
@@ -84,7 +84,7 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
             code="INVALID_CREDENTIALS"
         )
 
-    token = create_access_token({"sub": user.email})
+    token = create_access_token(user)
 
     return success({
         "access_token": token,

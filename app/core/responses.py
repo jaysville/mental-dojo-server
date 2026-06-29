@@ -1,29 +1,27 @@
 from fastapi.responses import JSONResponse
-
+from fastapi.encoders import jsonable_encoder
 
 def success(data=None, message="ok", status_code=200):
-    """Return a standardized success response as JSON"""
+    """Standard success response"""
     return JSONResponse(
         status_code=status_code,
-        content={
+        content=jsonable_encoder({
             "success": True,
             "message": message,
             "data": data,
-        },
+        }),
     )
 
-
 def error(code: str, message: str, fields=None, status_code=400):
-    """Return a standardized error response as JSON"""
+    """Standard error response"""
     return JSONResponse(
         status_code=status_code,
-        content={
+        content=jsonable_encoder({
             "success": False,
             "error": {
                 "code": code,
                 "message": message,
                 "fields": fields,
             },
-        },
+        }),
     )
-
