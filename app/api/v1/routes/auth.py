@@ -1,5 +1,3 @@
-import token
-
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
@@ -10,6 +8,7 @@ from app.models import user
 from app.schemas.auth import SignupRequest, LoginRequest, TokenResponse, SuccessTokenResponse
 from app.core.security import hash_password, verify_password, create_access_token
 from app.models.user import User
+from app.models.user_progress import UserProgress
 from app.services.game.faculty_initializer import initialize_faculties_for_user
 
 router = APIRouter()
@@ -42,7 +41,9 @@ def signup(data: SignupRequest, db: Session = Depends(get_db)):
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
+    db.add(UserProgress(user_id=new_user.id, xp=0, streak=0, level=1))
     initialize_faculties_for_user(db, new_user.id)
+    db.commit()
     token = create_access_token(new_user)
 
     return success({

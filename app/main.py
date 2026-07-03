@@ -6,10 +6,32 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from app.api.v1.routes import auth, questions
-from app.core.database import engine
+from app.api.v1.routes import auth, questions, session
+from app.core.database import engine, Base
 from app.core.errors import AppError
 from app.core.responses import error
+
+
+Base.metadata.create_all(bind=engine)
+
+
+def ensure_answered_questions_schema():
+    with engine.begin() as conn:
+        existing = conn.execute(text(
+            "SELECT 1 FROM information_schema.columns "
+            "WHERE table_name='answered_questions' "
+            "AND column_name='is_correct'"
+        )).first()
+
+        if existing is None:
+            conn.execute(text(
+                "ALTER TABLE answered_questions "
+                "ADD COLUMN is_correct boolean DEFAULT false NOT NULL"
+            ))
+
+
+ensure_answered_questions_schema()
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -52,6 +74,7 @@ async def root():
 
 api_router.include_router(auth.router, prefix="/auth", tags=["auth"])
 api_router.include_router(questions.router, prefix="/questions", tags=["questions"])
+api_router.include_router(session.router, prefix="/session", tags=["session"])
 
 app.include_router(api_router)
 

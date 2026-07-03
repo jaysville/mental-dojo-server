@@ -5,7 +5,6 @@ from app.services.game.difficulty_engine import calculate_next_difficulty
 
 
 def get_next_question(db, user_id, faculty_id, faculty_progress):
-
     #Determine difficulty
     difficulty = calculate_next_difficulty(faculty_progress)
 

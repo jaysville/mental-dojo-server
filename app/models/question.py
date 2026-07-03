@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, func
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.dialects.postgresql import ARRAY
 from app.core.database import Base
@@ -29,6 +29,7 @@ class AnsweredQuestion(Base):
     __tablename__ = "answered_questions"
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(String, index=True)
-    question_id = Column(Integer)
-    faculty_id = Column(String)    
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), index=True)
+    question_id = Column(UUID(as_uuid=True), ForeignKey("questions.id"), index=True)
+    faculty_id = Column(UUID(as_uuid=True), ForeignKey("faculties.id"), index=True)
+    is_correct = Column(Boolean, default=False)
